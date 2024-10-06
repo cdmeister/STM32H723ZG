@@ -24,6 +24,10 @@ MEMORY
 /* Highest address of the user mode stack */
 _estack = ORIGIN(RAM_D1) + LENGTH(RAM_D1);    /* end of RAM */
 
+/* OS memory */
+PROVIDE(_os_stack_start = ORIGIN(RAM_D2));
+PROVIDE(_os_stack_end   = ORIGIN(RAM_D2) + LENGTH(RAM_D2));
+
 /* output sections */
 SECTIONS
 {

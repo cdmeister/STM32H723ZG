@@ -3,6 +3,7 @@
 
 #include "stm32h7xx.h"
 
+#define NULL 0
 /* Begin address for the initialization values of the .data section
  * defined in the linker script
  * https://stackoverflow.com/questions/8398755/access-symbols-defined-in-the-linker-script-by-application
@@ -17,6 +18,9 @@ extern uint32_t _edata;
 
 extern uint32_t _sbss;
 extern uint32_t _ebss;
+
+extern uint32_t _os_stack_start;
+extern uint32_t _os_stack_end;
 
 /* Work out end of RAM address as initial stack pointer
 * (specific of a given STM32 MCU */

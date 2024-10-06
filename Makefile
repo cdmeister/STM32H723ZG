@@ -7,16 +7,19 @@ DEBUG = 1
 # Directories
 BUILD_DIR = build
 SRC_BASE_DIR = src
-MU_BASE_DIR = mu
-STARTUP_DIR = $(MU_BASE_DIR)/startup
+MU_BASE_DIR  = mu
+STARTUP_DIR  = $(MU_BASE_DIR)/startup
 LSCRIPT_DIR := $(MU_BASE_DIR)/linker
-CMSIS_DIR = $(MU_BASE_DIR)/cmsis
+CMSIS_DIR    = $(MU_BASE_DIR)/cmsis
+OS_DIR      := $(MU_BASE_DIR)/os
 
 SRC_FILES := $(wildcard  *.c) \
 						$(wildcard $(MU_BASE_DIR)/*.c) \
 						$(wildcard $(STARTUP_DIR)/*.c) \
 						$(wildcard $(SRC_BASE_DIR)/*.c) \
-						$(wildcard $(SRC_BASE_DIR)/systick/*.c)
+						$(wildcard $(SRC_BASE_DIR)/systick/*.c) \
+						$(wildcard $(OS_DIR)/task_management/*c) \
+						$(wildcard $(OS_DIR)/scheduler/*.c)
 
 
 SRC_DIRS := $(dir $(SRC_FILES))
@@ -39,7 +42,9 @@ INC_DIR = I$(LSCRIPT_DIR) \
 					-I$(MU_BASE_DIR) \
 					-I$(STARTUP_DIR) \
 					-I$(CMSIS_DIR) \
-					-I$(SRC_BASE_DIR)/systick
+					-I$(SRC_BASE_DIR)/systick \
+					-I$(OS_DIR)/task_management \
+					-I$(OS_DIR)/scheduler
 
 $(info INC_DIR is $(INC_DIR))
 
@@ -66,7 +71,7 @@ DEBUG_FLAG = -Wno-unused -Wextra -pedantic
 # -M prints which headerfiles was included
 ifeq ($(DEBUG), 1)
 OPT = -O0
-DEBUG_FLAG += -H -g3 -gdwarf-2
+DEBUG_FLAG += -H -g3
 endif
 
 # Compiler Flags
