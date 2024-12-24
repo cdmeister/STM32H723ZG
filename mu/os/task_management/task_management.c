@@ -6,6 +6,10 @@ struct task_block TASKS[MAX_TASKS];
 int n_tasks = 1;
 int running_task_id = 0;
 
+struct task_block * tasklist_active = NULL;
+struct task_block * tasklist_waiting = NULL;
+struct task_block *t_cur = &TASKS[0];
+
 static void task_stack_init(struct task_block *t) {
   struct stack_frame *tf;
   t->sp -= sizeof(struct stack_frame);
@@ -44,8 +48,63 @@ struct task_block *task_create(char *name, void (*start)(void *arg), void *arg)
   t->arg = arg;
   t->sp = (uint8_t*)((&_os_stack_start) + n_tasks * STACK_SIZE);
   task_stack_init(t);
+  tasklist_add(&tasklist_active, t);
 
   return t;
+}
+
+/* Insert a new node to beginning of the list */
+void tasklist_add(struct task_block **list, struct task_block *addme){
+
+  addme->next = *list;
+  *list = addme;
+}
+
+/* delete a node from the list */
+int tasklist_del(struct task_block **list, struct task_block *delme){
+
+  struct task_block * prev = NULL;
+  struct task_block * current = *list;
+
+  while (current){
+    if (current == delme) {
+      if(prev == NULL){
+        *list = current->next;
+      }
+      else {
+        prev->next = current->next;
+      }
+      return 0;
+    }
+
+    prev = current;
+    current = current->next;
+  }
+
+  return -1;
+}
+
+void task_waiting(struct task_block *t)
+{
+  if (tasklist_del(&tasklist_active, t) == 0) {
+    tasklist_add(&tasklist_waiting, t);
+    t->state = TASK_WAITING;
+  }
+}
+
+void task_ready(struct task_block *t)
+{
+  if (tasklist_del(&tasklist_waiting, t) == 0) {
+    tasklist_add(&tasklist_active, t);
+    t->state = TASK_READY;
+  }
+}
+
+struct task_block *tasklist_next_ready(struct task_block *t)
+{
+  if ((t->next == NULL) || (t->next->state != TASK_READY))
+    return tasklist_active;
+  return t->next;
 }
 
 

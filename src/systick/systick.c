@@ -1,8 +1,11 @@
 #include "stm32h7xx.h"
 #include "systick.h"
+#include "scheduler.h"
 
 volatile uint32_t TimeDelay;
 volatile uint32_t milliseconds;
+
+#define TIMESLICE (20)
 
 void systick_config(uint32_t reload) {
 
@@ -44,7 +47,11 @@ uint32_t millis() {
   return milliseconds;
 }
 void SysTick_Handler(void){
-  milliseconds++;
+
+  if ((++milliseconds % TIMESLICE) == 0){
+    schedule();
+  }
+
   if (TimeDelay > 0)
     TimeDelay--;
 }

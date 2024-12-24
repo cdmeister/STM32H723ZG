@@ -4,6 +4,7 @@
 extern int running_task_id;
 extern struct task_block TASKS[MAX_TASKS];
 extern int n_tasks;
+extern struct task_block *t_cur;
 
 /* The following two functions are used to push and pop the extra stack frame in the stack*/
 void __attribute__((naked)) store_context(void) {
@@ -26,21 +27,22 @@ void __attribute__((naked)) PendSV_Handler (void) {
   store_context();
 
   /* store the curent main stack ptr to the current task running */
-  __asm__ volatile("mrs %0, msp" : "=r"(TASKS[running_task_id].sp));
+  __asm__ volatile("mrs %0, msp" : "=r"(t_cur->sp));
 
   /* Change the current running task back to ready */
-  TASKS[running_task_id].state = TASK_READY;
+  if (t_cur->state == TASK_RUNNING) {
+    t_cur->state = TASK_READY;
+  }
 
   /* Select the next task */
-  running_task_id++;
-  if (running_task_id >= n_tasks)
-    running_task_id = 0;
+  t_cur = tasklist_next_ready(t_cur);
 
   /* Change state of the new task selected to running */
-  TASKS[running_task_id].state = TASK_RUNNING;
+  t_cur->state = TASK_RUNNING;
+
 
   /* Load the main stack ptr with the value stored in the task block*/
-  __asm__ volatile("msr msp, %0"::"r"(TASKS[running_task_id].sp));
+  __asm__ volatile("msr msp, %0"::"r"(t_cur->sp));
 
   /* restore registers r4-r11 for this task from stack */
   restore_context();

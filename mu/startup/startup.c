@@ -120,7 +120,7 @@ void SystemInit (void){
 void Reset_Handler(void){
   _initialize_data(&_sidata,&_sdata,&_edata);
   _initialize_bss(&_sbss,&_ebss);
-  SystemInit();
+ // SystemInit();
   main();
   for(;;);
 }
