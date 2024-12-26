@@ -94,8 +94,8 @@ void SystemInit (void){
   RCC->PLL2DIVR = 0x01010280;
 
   /* Reset PLL2FRACR register */
-
   RCC->PLL2FRACR = 0x00000000;
+
   /* Reset PLL3DIVR register */
   RCC->PLL3DIVR = 0x01010280;
 
@@ -107,6 +107,14 @@ void SystemInit (void){
 
   /* Disable all interrupts */
   RCC->CIER = 0x00000000;
+
+  /* in case of initialized data in D2 SRAM (AHB SRAM), enable the D2 SRAM clock (AHB SRAM clock) */
+  RCC->AHB2ENR |= (RCC_AHB2ENR_D2SRAM1EN | RCC_AHB2ENR_D2SRAM2EN);
+
+  /* Configure the Vector Table location -------------------------------------*/
+#if defined(USER_VECT_TAB_ADDRESS)
+  SCB->VTOR = VECT_TAB_BASE_ADDRESS | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal D1 AXI-RAM or in Internal FLASH */
+#endif /* USER_VECT_TAB_ADDRESS */
 }
 
 /**

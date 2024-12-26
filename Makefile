@@ -11,6 +11,7 @@ MU_BASE_DIR = mu
 STARTUP_DIR = $(MU_BASE_DIR)/startup
 LSCRIPT_DIR := $(MU_BASE_DIR)/linker
 CMSIS_DIR = $(MU_BASE_DIR)/cmsis
+CMSIS_GEN_DIR = $(CMSIS_DIR)/generic_headers
 
 SRC_FILES := $(wildcard  *.c) \
 						$(wildcard $(MU_BASE_DIR)/*.c) \
@@ -39,6 +40,7 @@ INC_DIR = I$(LSCRIPT_DIR) \
 					-I$(MU_BASE_DIR) \
 					-I$(STARTUP_DIR) \
 					-I$(CMSIS_DIR) \
+					-I$(CMSIS_GEN_DIR) \
 					-I$(SRC_BASE_DIR)/systick
 
 $(info INC_DIR is $(INC_DIR))
@@ -119,5 +121,7 @@ nuke:
 	-rm -rf *.o *.d *.elf *.bin *.hex *.map $(BUILD_DIR)
 
 flash:
-	st-flash write $(BUILD_DIR)/$(TARGET).bin 0x8000000
+	STM32_Programmer_CLI -c port=SWD -w $(BUILD_DIR)/$(TARGET).bin 0x8000000
 
+flash2:
+	st-flash write $(BUILD_DIR)/$(TARGET).bin --connect-under-reset  0x8000000
