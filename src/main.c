@@ -1,24 +1,37 @@
 #include "stm32h7xx.h"
 #include "startup.h"
 #include "systick.h"
+#include "led.h"
+#include "os_tasks.h"
 
-void delay(uint32_t count);
+#if ENABLE_DBG_MSG
+#include "stdio.h"
+#endif
+
+
+#if ENABLE_DBG_MSG
+int _write(int fd, char *ptr, int len){
+  size_t i;
+  for(i=0; i<len;i++){
+    ITM_SendChar(ptr[i]);
+  }
+  return len;
+}
+#endif
 
 int main() {
 
-	/* Enable clock on GPIOE peripheral */
-	RCC->AHB4ENR = 0x10;
+#if ENABLE_DBG_MSG
+	printf("Hello World\n");
+	printf("Hello World2\n");
+#endif
+	LED_Initializer();
+	os_start();
 
-	/* Configure the PA5 as output pull-up */
-	GPIOE->MODER &= 0x4; // Sets MODER[11:10] = 0x1
-
-	systick_config(SystemCoreClock/1000);
 
 	while(1) {
-		GPIOE->ODR = 0x2;
-		Delay(100);
-		GPIOE->ODR = 0x0;
-		Delay(100);
+		/* Should not reach here */
+		stop_cpu;
 	}
 
 }

@@ -3,6 +3,7 @@ TARGET = bare_metal
 
 # DEBUG
 DEBUG = 1
+PRINT = $(printf)
 
 # Directories
 BUILD_DIR = build
@@ -17,7 +18,9 @@ SRC_FILES := $(wildcard  *.c) \
 						$(wildcard $(MU_BASE_DIR)/*.c) \
 						$(wildcard $(STARTUP_DIR)/*.c) \
 						$(wildcard $(SRC_BASE_DIR)/*.c) \
-						$(wildcard $(SRC_BASE_DIR)/systick/*.c)
+						$(wildcard $(SRC_BASE_DIR)/systick/*.c) \
+						$(wildcard $(SRC_BASE_DIR)/led/*.c) \
+						$(wildcard $(SRC_BASE_DIR)/synchronization/*.c)
 
 
 SRC_DIRS := $(dir $(SRC_FILES))
@@ -41,7 +44,10 @@ INC_DIR = I$(LSCRIPT_DIR) \
 					-I$(STARTUP_DIR) \
 					-I$(CMSIS_DIR) \
 					-I$(CMSIS_GEN_DIR) \
-					-I$(SRC_BASE_DIR)/systick
+					-I$(SRC_BASE_DIR) \
+					-I$(SRC_BASE_DIR)/systick \
+					-I$(SRC_BASE_DIR)/led \
+					-I$(SRC_BASE_DIR)/synchronization
 
 $(info INC_DIR is $(INC_DIR))
 
@@ -71,12 +77,18 @@ OPT = -O0
 DEBUG_FLAG += -H -g3 -gdwarf-2
 endif
 
+ifeq ($(PRINT), 1)
+CFLAGS += --specs=nosys.specs -DENABLE_DBG_MSG
+LDFLAGS += --specs=nosys.specs -DENABLE_DBG_MSG
+else
+CFLAGS += --freestanding -nostdlib
+LDFLAGS += -nostdlib
+endif
+
 # Compiler Flags
 #CFLAGS += -ffreestanding
 CFLAGS += $(MCU) $(DEBUG_FLAG) $(OPT) $(GCC_STANDARD) $(DEPENDECY)\
-					-$(INC_DIR) \
-					-ffreestanding -ffunction-sections -nostdlib \
-					-fdata-sections
+					-$(INC_DIR) -ffunction-sections -fdata-sections
 
 
 # Linker Script
@@ -88,7 +100,7 @@ $(info Linker is $(LSCRIPT))
 # -lc has malloc but need to implement _sbrk
 LIBS = -lc
 # Linker Flags
-LDFLAGS = -T$(LSCRIPT)  $(MCU) -nostdlib $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map -Wl,--cref -Wl,--gc-sections
+LDFLAGS += -T$(LSCRIPT)  $(MCU)   $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map -Wl,--cref -Wl,--gc-sections
 
 
 .PHONY: clean nuke list all directories
@@ -114,9 +126,6 @@ $(BUILD_DIR)/%.o: %.c | directories
 
 -include $(OBJ_FILES:.o=.d)
 
-list:
-	@$(MAKE) -pRrq -f $(lastword $(MAKEFILE_LIST)) : 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | egrep -v -e '^[^[:alnum:]]' -e '^$@$$'
-
 nuke:
 	-rm -rf *.o *.d *.elf *.bin *.hex *.map $(BUILD_DIR)
 
@@ -125,3 +134,13 @@ flash:
 
 flash2:
 	st-flash write $(BUILD_DIR)/$(TARGET).bin --connect-under-reset  0x8000000
+
+gdb:
+	gdb-multiarch -x debug/gdbinit
+
+openocd:
+	cd mu/debug/tools/openocd; \
+	./openocd -f stm32h723zgtx.cfg
+
+mudebug:
+	zellij --layout debug/tools/layout_file.kdl attach -b debugSession

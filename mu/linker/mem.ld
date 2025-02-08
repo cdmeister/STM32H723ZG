@@ -85,13 +85,15 @@ SECTIONS
     . = ALIGN(4);
     _ebss = .;         /* define a global symbol at bss end */
     _bss_end = _ebss;
+    end = _ebss;
   } >RAM_D1
-
+/*
   /DISCARD/ :
   {
     libc.a ( * )
     libm.a ( * )
     libgcc.a ( * )
   }
+*/
 }
 

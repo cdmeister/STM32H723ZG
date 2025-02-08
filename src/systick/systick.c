@@ -1,8 +1,10 @@
 #include "stm32h7xx.h"
 #include "systick.h"
+#include "os_tasks.h"
 
 volatile uint32_t TimeDelay;
 volatile uint32_t milliseconds;
+volatile uint32_t systick_count;
 
 void systick_config(uint32_t reload) {
 
@@ -42,8 +44,22 @@ uint32_t millis() {
   return milliseconds;
 }
 void SysTick_Handler(void){
-  milliseconds++;
-  if (TimeDelay > 0)
-    TimeDelay--;
+  systick_count++;
+
+  switch(curr_task) {
+    case (0): next_task=1; break;
+    case (1): next_task=2; break;
+    case (2): next_task=0; break;
+    default: next_task=0;
+      stop_cpu;
+      break;
+  }
+
+  /* Context Switching is needed */
+  if(curr_task != next_task) {
+    SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
+  }
+
+  return;
 }
 

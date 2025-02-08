@@ -1,0 +1,16 @@
+// layout_file.kdl
+
+layout {
+    pane split_direction="vertical" {
+        pane {
+          cwd "debug/tools/openocd"
+          command "./openocd"
+          args "-f" "stm32h723zgtx.cfg"
+        }
+        pane {
+          cwd "debug/tools/orbuculum"
+          command "./orbcat"
+          args "-s" "localhost:3344" "-c0,%c"
+        }
+    }
+}

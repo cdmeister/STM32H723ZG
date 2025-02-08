@@ -11,4 +11,5 @@ gdb-multiarch -x mu/debug/gdbinit
 Fun stuff:
 layout spilt
 focus asm
+step through asm: stepi(si) or nexti(ni)
 

@@ -3,6 +3,7 @@
 
 extern volatile uint32_t TimeDelay;
 extern volatile uint32_t milliseconds;
+extern volatile uint32_t systick_count;
 
 void Delay(uint32_t nTime);
 uint32_t millis();

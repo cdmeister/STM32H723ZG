@@ -1,0 +1,6 @@
+Setup RCC/PLL programming
+Setup ITM/printf with openocd/gdb - done
+Setup some terminal muxing mechanism - done
+Make the scheduler code modularized so that i can swap scheduling algos in and out
+setup delay/sleep mechanism.
+setup tasks to states just like running,active, blocked, waiting, inactive, etc.
