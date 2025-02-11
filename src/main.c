@@ -28,7 +28,6 @@ int main() {
 	LED_Initializer();
 	os_start();
 
-
 	while(1) {
 		/* Should not reach here */
 		stop_cpu;

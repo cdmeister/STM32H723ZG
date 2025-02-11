@@ -1,5 +1,6 @@
 #include "linker_defines.h"
 #include "startup.h"
+#include "clocks.h"
 
 
 // Default HSI 64MHz
@@ -129,6 +130,7 @@ void Reset_Handler(void){
   _initialize_data(&_sidata,&_sdata,&_edata);
   _initialize_bss(&_sbss,&_ebss);
   SystemInit();
+	setHSICLK(ON, RCC_CR_HSIDIV_1);
   main();
   for(;;);
 }

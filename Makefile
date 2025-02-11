@@ -20,7 +20,8 @@ SRC_FILES := $(wildcard  *.c) \
 						$(wildcard $(SRC_BASE_DIR)/*.c) \
 						$(wildcard $(SRC_BASE_DIR)/systick/*.c) \
 						$(wildcard $(SRC_BASE_DIR)/led/*.c) \
-						$(wildcard $(SRC_BASE_DIR)/synchronization/*.c)
+						$(wildcard $(SRC_BASE_DIR)/synchronization/*.c) \
+						$(wildcard $(MU_BASE_DIR)/rcc/*.c)
 
 
 SRC_DIRS := $(dir $(SRC_FILES))
@@ -47,7 +48,8 @@ INC_DIR = I$(LSCRIPT_DIR) \
 					-I$(SRC_BASE_DIR) \
 					-I$(SRC_BASE_DIR)/systick \
 					-I$(SRC_BASE_DIR)/led \
-					-I$(SRC_BASE_DIR)/synchronization
+					-I$(SRC_BASE_DIR)/synchronization \
+					-I$(MU_BASE_DIR)/rcc
 
 $(info INC_DIR is $(INC_DIR))
 
